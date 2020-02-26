@@ -35,7 +35,7 @@ const routes = [
 ]
 const router = new VueRouter({
   routes,
-  model: 'history'
+  mode: 'history'
 })
 
 //导出router
