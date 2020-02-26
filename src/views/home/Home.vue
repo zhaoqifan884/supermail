@@ -4,13 +4,14 @@
       <div slot="center">购物街</div>
     </nav-bar>
     <home-swiper :banners="banners"/>
-<!--    <recommend-view :recommends="recommends"/>-->
+    <recommend-view :recommends="recommends"/>
   </div>
 </template>
 
 <script>
   import NavBar from "components/common/navbar/NavBar";
   import HomeSwiper from "./childComps/HomeSwiper";
+  import RecommendView from "./childComps/RecommendView";
   //只有default导出时，才能省略{}
   import {getHomeMultidata} from "network/home";
 
@@ -18,7 +19,8 @@
     name: "Home",
     components: {
       NavBar,
-      HomeSwiper
+      HomeSwiper,
+      RecommendView
     },
     data() {
       return {
