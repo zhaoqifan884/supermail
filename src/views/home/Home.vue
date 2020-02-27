@@ -6,11 +6,44 @@
     <home-swiper :banners="banners"/>
     <recommend-view :recommends="recommends"/>
     <feature-view/>
+    <tab-control class="tab-control" :titles="['流行', '新款', '精选']"/>
+
+    <ul>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li><li>hahaha</li><li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li><li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li><li>hahaha</li><li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+      <li>hahaha</li>
+
+    </ul>
   </div>
 </template>
 
 <script>
   import NavBar from "components/common/navbar/NavBar";
+  import TabControl from "components/context/tabControl/TabControl";
+
   import HomeSwiper from "./childComps/HomeSwiper";
   import RecommendView from "./childComps/RecommendView";
   import FeatureView from "./childComps/FeatureView";
@@ -21,8 +54,11 @@
     name: "Home",
     components: {
       NavBar,
+      TabControl,
+
       HomeSwiper,
       RecommendView,
+
       FeatureView
     },
     data() {
@@ -60,6 +96,10 @@
     right: 0;
     top: 0;
     z-index: 9;
+  }
+  .tab-control {
+    position: sticky;
+    top: 44px;
   }
 
 </style>
