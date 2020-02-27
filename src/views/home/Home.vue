@@ -7,6 +7,7 @@
     <recommend-view :recommends="recommends"/>
     <feature-view/>
     <tab-control class="tab-control" :titles="['流行', '新款', '精选']"/>
+    <goods-list :goods="goods['pop'].list"/>
 
     <ul>
       <li>hahaha</li>
@@ -43,10 +44,12 @@
 <script>
   import NavBar from "components/common/navbar/NavBar";
   import TabControl from "components/context/tabControl/TabControl";
+  import GoodsList from "components/context/goods/GoodsList";
 
   import HomeSwiper from "./childComps/HomeSwiper";
   import RecommendView from "./childComps/RecommendView";
   import FeatureView from "./childComps/FeatureView";
+
   //只有default导出时，才能省略{}
   import {
     getHomeMultidata,
@@ -58,6 +61,7 @@
     components: {
       NavBar,
       TabControl,
+      GoodsList,
 
       HomeSwiper,
       RecommendView,
@@ -129,6 +133,7 @@
   .tab-control {
     position: sticky;
     top: 44px;
+    z-index: 9;
   }
 
 </style>
