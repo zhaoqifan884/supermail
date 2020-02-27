@@ -48,7 +48,10 @@
   import RecommendView from "./childComps/RecommendView";
   import FeatureView from "./childComps/FeatureView";
   //只有default导出时，才能省略{}
-  import {getHomeMultidata} from "network/home";
+  import {
+    getHomeMultidata,
+    getHomeGoods
+  } from "network/home";
 
   export default {
     name: "Home",
@@ -64,17 +67,43 @@
     data() {
       return {
         banners: [],
-        recommends: []
+        recommends: [],
+        goods: {
+          'pop': {page: 0, list: []},
+          'new': {page: 0, list: []},
+          'sell': {page: 0, list: []}
+        }
       }
     },
     //当首页创建完之后，发送网络请求
     created() {
       // 1.创建多个数据   (加（）表示调用函数)
-      getHomeMultidata().then(res => {
-        // console.log(res);
-        this.banners = res.data.banner.list;
-        this.recommends = res.data.recommend.list;
-      })
+      this.getHomeMultidata()
+
+      //请求商品数据
+      this.getHomeGoods('pop')
+      this.getHomeGoods('new')
+      this.getHomeGoods('sell')
+    },
+    methods: {
+      getHomeMultidata() {
+        getHomeMultidata().then(res => {
+          // console.log(res);
+          this.banners = res.data.banner.list;
+          this.recommends = res.data.recommend.list;
+        })
+      },
+      getHomeGoods(type) {
+        const page = this.goods[type].page + 1
+        getHomeGoods(type,page).then(res => {
+          /*console.log(res);
+          res.data().list*/
+          //对res.data().list中的元素做一个解析，在塞到goods中
+          this.goods[type].list.push(...res.data.list)
+          //因为type多了一组数据，所以页码必须加一
+          this.goods[type].page += 1
+        })
+      }
     }
 
   }
