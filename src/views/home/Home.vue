@@ -3,41 +3,16 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
-    <home-swiper :banners="banners"/>
-    <recommend-view :recommends="recommends"/>
-    <feature-view/>
-    <tab-control class="tab-control" :titles="['流行', '新款', '精选']"/>
-    <goods-list :goods="goods['pop'].list"/>
+    <scroll class="content">
+      <home-swiper :banners="banners"/>
+      <recommend-view :recommends="recommends"/>
+      <feature-view/>
+      <tab-control class="tab-control"
+                   :titles="['流行', '新款', '精选']"
+                   @tabClick="tabClick"/>
+      <goods-list :goods="showGoods"/>
+    </scroll>
 
-    <ul>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li><li>hahaha</li><li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li><li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li><li>hahaha</li><li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-      <li>hahaha</li>
-
-    </ul>
   </div>
 </template>
 
@@ -45,6 +20,7 @@
   import NavBar from "components/common/navbar/NavBar";
   import TabControl from "components/context/tabControl/TabControl";
   import GoodsList from "components/context/goods/GoodsList";
+  import Scroll from "components/common/scroll/Scroll";
 
   import HomeSwiper from "./childComps/HomeSwiper";
   import RecommendView from "./childComps/RecommendView";
@@ -62,6 +38,7 @@
       NavBar,
       TabControl,
       GoodsList,
+      Scroll,
 
       HomeSwiper,
       RecommendView,
@@ -76,7 +53,14 @@
           'pop': {page: 0, list: []},
           'new': {page: 0, list: []},
           'sell': {page: 0, list: []}
-        }
+        },
+        //，默认展示pop
+        currentType: 'pop'
+      }
+    },
+    computed: {
+      showGoods() {
+        return this.goods[this.currentType].list
       }
     },
     //当首页创建完之后，发送网络请求
@@ -90,6 +74,27 @@
       this.getHomeGoods('sell')
     },
     methods: {
+      /**
+       * 事件监听相关的方法
+       */
+      tabClick(index) {
+        switch (index) {
+          case 0 :
+            this.currentType = 'pop'
+            break
+          case 1 :
+            this.currentType = 'new'
+            break
+          case 2 :
+            this.currentType = 'sell'
+            break
+        }
+        // console.log(index);
+      },
+
+      /**
+       * 网络请求相关方法
+       */
       getHomeMultidata() {
         getHomeMultidata().then(res => {
           // console.log(res);
@@ -112,12 +117,16 @@
 
   }
 </script>
-
+<!--scoped 属性只会对当前页面起效果-->
 <style scoped>
   #home {
+    /*content样式一时关闭 padding-top*/
     padding-top: 44px;
-    /*height: 100vh;*/
-    /*position: relative;*/
+    /*vh --> 视口高度  100vh ---> 100% 的视口*/
+    /*样式2时打开*/
+    height: 100vh;
+    /*相对定位*/
+    position: relative;
   }
 
   .home-nav {
@@ -134,6 +143,25 @@
     position: sticky;
     top: 44px;
     z-index: 9;
+  }
+
+  /* 样式一*/
+  /*.content {
+    height: calc(100% - 93px);
+    overflow: hidden;
+    margin-top: 44px;
+  }*/
+  /*样式2*/
+  .content {
+    overflow: hidden;
+    /*绝对定位*/
+    position: absolute;
+    /*顶部高度*/
+    top: 44px;
+  /*  底部高度*/
+    bottom: 49px;
+    left: 0;
+    right: 0;
   }
 
 </style>
