@@ -3,7 +3,9 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
-    <scroll class="content">
+    <scroll class="content" ref="scroll"
+            :probe-type="3" @scroll="contentScroll"
+            :pull-up-load="true" @pullingUp="loadMore">
       <home-swiper :banners="banners"/>
       <recommend-view :recommends="recommends"/>
       <feature-view/>
@@ -12,6 +14,9 @@
                    @tabClick="tabClick"/>
       <goods-list :goods="showGoods"/>
     </scroll>
+<!--    组件不能直接监听点击，需要加.native(原生的)-->
+<!--    原生组件可以随意监听-->
+    <back-top @click.native="backClick" v-show="isShowBackTop"/>
 
   </div>
 </template>
@@ -21,6 +26,7 @@
   import TabControl from "components/context/tabControl/TabControl";
   import GoodsList from "components/context/goods/GoodsList";
   import Scroll from "components/common/scroll/Scroll";
+  import BackTop from "components/context/backTop/BackTop";
 
   import HomeSwiper from "./childComps/HomeSwiper";
   import RecommendView from "./childComps/RecommendView";
@@ -39,6 +45,7 @@
       TabControl,
       GoodsList,
       Scroll,
+      BackTop,
 
       HomeSwiper,
       RecommendView,
@@ -55,7 +62,8 @@
           'sell': {page: 0, list: []}
         },
         //，默认展示pop
-        currentType: 'pop'
+        currentType: 'pop',
+        isShowBackTop: false
       }
     },
     computed: {
@@ -91,6 +99,22 @@
         }
         // console.log(index);
       },
+      /**
+       * scroll监听滚动的位置
+       * backtop显示/隐藏
+       */
+      contentScroll(position) {
+        // console.log(position);
+        this.isShowBackTop = (-position.y) > 1000
+      },
+      loadMore() {
+        // console.log('上拉加载更多');
+        this.getHomeGoods(this.currentType)
+
+        //解决better-scroll bug ，因为better-scroll会一直处理默认原始高度的滚动，要对其现有的高度实时更新
+        //先监听图片什么时候加载完，在实时更新滚动高度
+        // this.$refs.scroll.scroll.refresh()
+      },
 
       /**
        * 网络请求相关方法
@@ -111,7 +135,17 @@
           this.goods[type].list.push(...res.data.list)
           //因为type多了一组数据，所以页码必须加一
           this.goods[type].page += 1
+
+          this.$refs.scroll.finishPullUp()
         })
+      },
+      /**
+       * 回到顶部
+       */
+      backClick() {
+        // console.log('回到顶部');
+        //scrollTo(0,0) 返回（0,0）的位置 在500ms之内回到顶部
+        this.$refs.scroll.scrollTo(0,0)
       }
     }
 
