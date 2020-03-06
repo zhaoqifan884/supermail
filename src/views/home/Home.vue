@@ -5,13 +5,12 @@
     </nav-bar>
     <scroll class="content" ref="scroll"
             :probe-type="3" @scroll="contentScroll"
-            :pull-up-load="true">
+            :pull-up-load="true" @pullingUp="loadMore">
       <home-swiper :banners="banners"/>
       <recommend-view :recommends="recommends"/>
       <feature-view/>
-      <tab-control class="tab-control"
-                   :titles="['流行', '新款', '精选']"
-                   @tabClick="tabClick"/>
+      <tab-control :titles="['流行', '新款', '精选']"
+                   @tabClick="tabClick" ref="tabControl"/>
       <goods-list :goods="showGoods"/>
     </scroll>
 <!--    组件不能直接监听点击，需要加.native(原生的)-->
@@ -37,6 +36,7 @@
     getHomeMultidata,
     getHomeGoods
   } from "network/home";
+  import {debounce} from "common/utils";
 
   export default {
     name: "Home",
@@ -63,7 +63,8 @@
         },
         //，默认展示pop
         currentType: 'pop',
-        isShowBackTop: false
+        isShowBackTop: false,
+        tabOffsetTop: 0
       }
     },
     computed: {
@@ -81,16 +82,32 @@
       this.getHomeGoods('new')
       this.getHomeGoods('sell')
 
-      //3.监听item中图片加载完成
+    },
+    mounted() {
+      //1.图片加载完成的事件监听
+      const refresh = debounce(this.$refs.scroll.refresh, 500)
+       //3.监听item中图片加载完成(监听一定要在mounted里完成)
       this.$bus.$on('itemImageLoad', () => {
-        // console.log('------------');
-        this.$refs.scroll.refresh()
+        //防抖函数起作用的过程
+        // 如果我们直接执行refresh,那么refresh函数会被执行30次，可以将refresh函数传入到debounce函数中，生成一个
+        //新的函数
+        //之后再调用非常平凡的时候，就调用新生成的函数，而新生成的函数并不会非常平凡的调用，如果下一次执行的非常快，
+        //那么将上一次销毁掉
+       /* this.$refs.scroll.refresh()*/
+       // 函数带括号，是取返回值， 不带括号是取函数
+       refresh()
       })
+
+      //2.获取tabCOntrol的offsetTop(赋值)
+      //所有组件都有一个属性$el;用于获取组件中的元素
+      //因为图片没有加载完，所以this.$refs.tabControl.$el.offsetTop拿到的数据是没有加载完的
+      console.log(this.$refs.tabControl.$el.offsetTop);
     },
     methods: {
       /**
        * 事件监听相关的方法
        */
+
       tabClick(index) {
         switch (index) {
           case 0 :
@@ -113,14 +130,14 @@
         // console.log(position);
         this.isShowBackTop = (-position.y) > 1000
       },
-      /*loadMore() {
+      loadMore() {
         // console.log('上拉加载更多');
         this.getHomeGoods(this.currentType)
 
         //解决better-scroll bug ，因为better-scroll会一直处理默认原始高度的滚动，要对其现有的高度实时更新
         //先监听图片什么时候加载完，在实时更新滚动高度
         // this.$refs.scroll.scroll.refresh()
-      },*/
+      },
 
       /**
        * 网络请求相关方法
@@ -141,8 +158,8 @@
           this.goods[type].list.push(...res.data.list)
           //因为type多了一组数据，所以页码必须加一
           this.goods[type].page += 1
-
-          // this.$refs.scroll.finishPullUp()
+             //完成上拉加载更多(scroll 默认只执行一次，需要对他实时刷新)
+          this.$refs.scroll.finishPullUp()
         })
       },
       /**
@@ -177,11 +194,6 @@
     left: 0;
     right: 0;
     top: 0;
-    z-index: 9;
-  }
-  .tab-control {
-    position: sticky;
-    top: 44px;
     z-index: 9;
   }
 
