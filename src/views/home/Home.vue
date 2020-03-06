@@ -5,7 +5,7 @@
     </nav-bar>
     <scroll class="content" ref="scroll"
             :probe-type="3" @scroll="contentScroll"
-            :pull-up-load="true" @pullingUp="loadMore">
+            :pull-up-load="true">
       <home-swiper :banners="banners"/>
       <recommend-view :recommends="recommends"/>
       <feature-view/>
@@ -76,10 +76,16 @@
       // 1.创建多个数据   (加（）表示调用函数)
       this.getHomeMultidata()
 
-      //请求商品数据
+      //2.请求商品数据
       this.getHomeGoods('pop')
       this.getHomeGoods('new')
       this.getHomeGoods('sell')
+
+      //3.监听item中图片加载完成
+      this.$bus.$on('itemImageLoad', () => {
+        // console.log('------------');
+        this.$refs.scroll.refresh()
+      })
     },
     methods: {
       /**
@@ -107,14 +113,14 @@
         // console.log(position);
         this.isShowBackTop = (-position.y) > 1000
       },
-      loadMore() {
+      /*loadMore() {
         // console.log('上拉加载更多');
         this.getHomeGoods(this.currentType)
 
         //解决better-scroll bug ，因为better-scroll会一直处理默认原始高度的滚动，要对其现有的高度实时更新
         //先监听图片什么时候加载完，在实时更新滚动高度
         // this.$refs.scroll.scroll.refresh()
-      },
+      },*/
 
       /**
        * 网络请求相关方法
@@ -136,7 +142,7 @@
           //因为type多了一组数据，所以页码必须加一
           this.goods[type].page += 1
 
-          this.$refs.scroll.finishPullUp()
+          // this.$refs.scroll.finishPullUp()
         })
       },
       /**
