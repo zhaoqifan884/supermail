@@ -3,14 +3,17 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
+    <tab-control :titles="['流行', '新款', '精选']"
+                 @tabClick="tabClick" ref="tabControl1"
+                 class="tab-control" v-show="isTabFixed"/>
     <scroll class="content" ref="scroll"
             :probe-type="3" @scroll="contentScroll"
             :pull-up-load="true" @pullingUp="loadMore">
-      <home-swiper :banners="banners"/>
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
       <recommend-view :recommends="recommends"/>
       <feature-view/>
       <tab-control :titles="['流行', '新款', '精选']"
-                   @tabClick="tabClick" ref="tabControl"/>
+                   @tabClick="tabClick" ref="tabControl2"/>
       <goods-list :goods="showGoods"/>
     </scroll>
 <!--    组件不能直接监听点击，需要加.native(原生的)-->
@@ -64,12 +67,24 @@
         //，默认展示pop
         currentType: 'pop',
         isShowBackTop: false,
-        tabOffsetTop: 0
+        tabOffsetTop: 0,
+        isTabFixed: false
       }
     },
     computed: {
       showGoods() {
         return this.goods[this.currentType].list
+      },
+      destroyed() {
+        console.log('home destroyed');
+      },
+      activated() {
+        this.$refs.scroll.scrollTo(0, this.saveY, 0)
+        this.$refs.scroll.refresh()
+      },
+      deactivated() {
+        this.saveY = this.$refs.scroll.getScrollY()
+        console.log(this.$refs.scroll.getScrollY());
       }
     },
     //当首页创建完之后，发送网络请求
@@ -98,10 +113,6 @@
        refresh()
       })
 
-      //2.获取tabCOntrol的offsetTop(赋值)
-      //所有组件都有一个属性$el;用于获取组件中的元素
-      //因为图片没有加载完，所以this.$refs.tabControl.$el.offsetTop拿到的数据是没有加载完的
-      console.log(this.$refs.tabControl.$el.offsetTop);
     },
     methods: {
       /**
@@ -121,6 +132,8 @@
             break
         }
         // console.log(index);
+        this.$refs.tabControl1.currentIndex = index
+        this.$refs.tabControl2.currentIndex = index
       },
       /**
        * scroll监听滚动的位置
@@ -128,7 +141,10 @@
        */
       contentScroll(position) {
         // console.log(position);
+        //1.判断backTop是否显示
         this.isShowBackTop = (-position.y) > 1000
+        //2.决定tabcontrol是否吸顶(position: fixed)
+        this.isTabFixed = (-position.y) > this.tabOffsetTop
       },
       loadMore() {
         // console.log('上拉加载更多');
@@ -137,6 +153,13 @@
         //解决better-scroll bug ，因为better-scroll会一直处理默认原始高度的滚动，要对其现有的高度实时更新
         //先监听图片什么时候加载完，在实时更新滚动高度
         // this.$refs.scroll.scroll.refresh()
+      },
+      swiperImageLoad() {
+        //2.获取tabCOntrol的offsetTop(赋值)
+        //所有组件都有一个属性$el;用于获取组件中的元素
+        //因为图片没有加载完，所以this.$refs.tabControl.$el.offsetTop拿到的数据是没有加载完的
+        // console.log(this.$refs.tabControl.$el.offsetTop);
+        this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
       },
 
       /**
@@ -189,7 +212,7 @@
   .home-nav {
     background-color: var(--color-tint);
     color: #fff;
-
+   /*在使用浏览器原生滚动时，为了让导航不跟随一起滚动*/
     position: fixed;
     left: 0;
     right: 0;
@@ -214,6 +237,12 @@
     bottom: 49px;
     left: 0;
     right: 0;
+  }
+
+  .tab-control {
+    /*相对定位*/
+    position: relative;
+    z-index: 9;
   }
 
 </style>
