@@ -75,16 +75,13 @@
       showGoods() {
         return this.goods[this.currentType].list
       },
-      destroyed() {
-        console.log('home destroyed');
-      },
       activated() {
         this.$refs.scroll.scrollTo(0, this.saveY, 0)
         this.$refs.scroll.refresh()
       },
       deactivated() {
         this.saveY = this.$refs.scroll.getScrollY()
-        console.log(this.$refs.scroll.getScrollY());
+        // console.log(this.$refs.scroll.getScrollY());
       }
     },
     //当首页创建完之后，发送网络请求
