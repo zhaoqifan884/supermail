@@ -26,6 +26,7 @@
   import GoodsList from "components/context/goods/GoodsList";
 
   import {getDetail, Goods, GoodsParam,Shop,getRecommend} from "network/detail";
+  import {itemListenerMixin} from "common/mixin";
   import Scroll from "components/common/scroll/Scroll";
 
   export default {
@@ -42,6 +43,9 @@
       BScroll,
       GoodsList
     },
+    //混入
+    mixins: [itemListenerMixin],
+
     data() {
       return {
         iid: null,
@@ -52,6 +56,7 @@
         paramInfo: {},
         commentInfo: {},
         recommends: []
+
       }
     },
     created() {
@@ -85,6 +90,12 @@
         this.recommends = res.data.list
         // console.log(typeof res.data.list);
       })
+    },
+    mounted() {
+    },
+    destroyed() {
+      //2.取消全局事件监听
+      this.$bus.$off('itemImgLoad',this.itemImgListener)
     },
     methods: {
       imageLoad() {

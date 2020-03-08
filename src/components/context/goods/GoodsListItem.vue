@@ -27,7 +27,15 @@
     },
     methods: {
       imageLoad() {
-        // console.log('imageLoad');
+        //若进入详情页，首页的图片就不会被监听，同理，首页也一样
+        //方法一 ： 由路由判断
+        /*if (this.$route.path.indexOf('/home')){
+          this.$bus.$emit('homeItemImageLoad')
+        }else if (this.$route.path.indexOf('/detail')){
+          this.$bus.$emit('detailItemImageLoad')
+        }*/
+
+        //方法二   在首页取消全局监听
         this.$bus.$emit('itemImageLoad')
       },
       itemClick() {

@@ -39,7 +39,7 @@
     getHomeMultidata,
     getHomeGoods
   } from "network/home";
-  import {debounce} from "common/utils";
+  import {itemListenerMixin} from "common/mixin";
 
   export default {
     name: "Home",
@@ -55,6 +55,8 @@
 
       FeatureView
     },
+    //混入
+    mixins: [itemListenerMixin],
     data() {
       return {
         banners: [],
@@ -68,21 +70,26 @@
         currentType: 'pop',
         isShowBackTop: false,
         tabOffsetTop: 0,
-        isTabFixed: false
+        isTabFixed: false,
+        saveY: 0
       }
     },
     computed: {
       showGoods() {
         return this.goods[this.currentType].list
-      },
-      activated() {
-        this.$refs.scroll.scrollTo(0, this.saveY, 0)
-        this.$refs.scroll.refresh()
-      },
-      deactivated() {
-        this.saveY = this.$refs.scroll.getScrollY()
-
       }
+
+    },
+    activated() {
+      this.$refs.scroll.scrollTo(0, this.saveY, 0)
+      this.$refs.scroll.refresh()
+    },
+    deactivated() {
+      //1.保存y值
+      this.saveY = this.$refs.scroll.getScrollY()
+
+      //2.取消全局事件监听
+      this.$bus.$off('itemImgLoad',this.itemImgListener)
     },
     //当首页创建完之后，发送网络请求
     created() {
@@ -96,19 +103,21 @@
 
     },
     mounted() {
-      //1.图片加载完成的事件监听
+     /* //1.图片加载完成的事件监听(防抖操作)
       const refresh = debounce(this.$refs.scroll.refresh, 500)
-       //3.监听item中图片加载完成(监听一定要在mounted里完成)
-      this.$bus.$on('itemImageLoad', () => {
+      //对监听事件进行保存
+      this.itemImgListener = () => {
         //防抖函数起作用的过程
         // 如果我们直接执行refresh,那么refresh函数会被执行30次，可以将refresh函数传入到debounce函数中，生成一个
         //新的函数
         //之后再调用非常平凡的时候，就调用新生成的函数，而新生成的函数并不会非常平凡的调用，如果下一次执行的非常快，
         //那么将上一次销毁掉
-       /* this.$refs.scroll.refresh()*/
-       // 函数带括号，是取返回值， 不带括号是取函数
-       refresh()
-      })
+        /!* this.$refs.scroll.refresh()*!/
+        // 函数带括号，是取返回值， 不带括号是取函数
+        refresh()
+      }
+        //3.监听item中图片加载完成(监听一定要在mounted里完成)
+      this.$bus.$on('itemImageLoad', this.itemImgListener)*/
 
     },
     methods: {
