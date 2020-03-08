@@ -67,7 +67,7 @@
       },
       getScrollY() {
         // console.log(this.scroll);
-        return this.scroll ? this.scroll.y : 0
+        return this._scroll ? this._scroll.y : 0
       }
     }
   }

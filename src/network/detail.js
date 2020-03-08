@@ -9,6 +9,12 @@ export function getDetail(iid) {
   })
 }
 
+export function getRecommend() {
+  return request({
+    url: '/recommend'
+  })
+}
+
 /**
  * 当数据很乱时，要对数据进行整合，传一个对象即可
  */

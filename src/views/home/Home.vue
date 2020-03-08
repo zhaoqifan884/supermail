@@ -81,7 +81,7 @@
       },
       deactivated() {
         this.saveY = this.$refs.scroll.getScrollY()
-        // console.log(this.$refs.scroll.getScrollY());
+
       }
     },
     //当首页创建完之后，发送网络请求
@@ -172,8 +172,7 @@
       getHomeGoods(type) {
         const page = this.goods[type].page + 1
         getHomeGoods(type,page).then(res => {
-          /*console.log(res);
-          res.data().list*/
+          // console.log(res.data.list);
           //对res.data().list中的元素做一个解析，在塞到goods中
           this.goods[type].list.push(...res.data.list)
           //因为type多了一组数据，所以页码必须加一

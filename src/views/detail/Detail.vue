@@ -7,6 +7,8 @@
       <detail-shop-info :shop="shop"/>
       <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"/>
       <detail-param-info :param-info="paramInfo"/>
+      <detail-comment-info :comment-info="commentInfo"/>
+      <goods-list :goods="recommends"/>
     </scroll>
   </div>
 </template>
@@ -18,12 +20,13 @@
   import DetailShopInfo from "./childComps/DetailShopInfo";
   import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
   import DetailParamInfo from "./childComps/DetailParamInfo";
+  import DetailCommentInfo from "./childComps/DetailCommentInfo";
 
   import BScroll from 'components/common/scroll/Scroll'
+  import GoodsList from "components/context/goods/GoodsList";
 
-  import {getDetail, Goods, GoodsParam} from "network/detail";
-  import {Shop} from "../../network/detail";
-  import Scroll from "../../components/common/scroll/Scroll";
+  import {getDetail, Goods, GoodsParam,Shop,getRecommend} from "network/detail";
+  import Scroll from "components/common/scroll/Scroll";
 
   export default {
     name: "Detail",
@@ -35,7 +38,9 @@
       DetailShopInfo,
       DetailGoodsInfo,
       DetailParamInfo,
-      BScroll
+      DetailCommentInfo,
+      BScroll,
+      GoodsList
     },
     data() {
       return {
@@ -44,12 +49,16 @@
         goods: {},
         shop: {},
         detailInfo: {},
-        paramInfo: {}
+        paramInfo: {},
+        commentInfo: {},
+        recommends: []
       }
     },
     created() {
-      //1.保存传入的iid
+      //1.保存传入的iid(动态id)
       this.iid = this.$route.params.iid
+      //1.保存传入的iid(query)
+      // this.iid = this.$route.query.iid
       //2.根据iid请求详情数据
       getDetail(this.iid).then(res => {
         // console.log(res);
@@ -64,6 +73,17 @@
         this.detailInfo = data.detailInfo
         //5.获取参数信息
         this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
+        //6.取出评论信息
+        if (data.rate.cRate != 0) {
+          // console.log(data.rate.list[0]);
+          this.commentInfo = data.rate.list[0]
+        }
+      })
+
+      //3.请求推荐数据
+      getRecommend().then(res => {
+        this.recommends = res.data.list
+        // console.log(typeof res.data.list);
       })
     },
     methods: {
