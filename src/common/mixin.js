@@ -1,5 +1,6 @@
 import {debounce} from "./utils";
 
+//混入
 export const itemListenerMixin = {
   data() {
     return {

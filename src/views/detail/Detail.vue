@@ -1,14 +1,15 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"/>
+    <detail-nav-bar class="detail-nav" @titleClick="titleClick"/>
     <scroll class="content" ref="scroll">
+<!--      属性：topImages   传值：top-images-->
       <detail-swiper :top-images="topImages"/>
       <detail-base-info :goods="goods"/>
       <detail-shop-info :shop="shop"/>
       <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"/>
-      <detail-param-info :param-info="paramInfo"/>
-      <detail-comment-info :comment-info="commentInfo"/>
-      <goods-list :goods="recommends"/>
+      <detail-param-info ref="params" :param-info="paramInfo"/>
+      <detail-comment-info ref="comment" :comment-info="commentInfo"/>
+      <goods-list ref="recommend" :goods="recommends"/>
     </scroll>
   </div>
 </template>
@@ -28,6 +29,7 @@
   import {getDetail, Goods, GoodsParam,Shop,getRecommend} from "network/detail";
   import {itemListenerMixin} from "common/mixin";
   import Scroll from "components/common/scroll/Scroll";
+  import {debounce} from "../../common/utils";
 
   export default {
     name: "Detail",
@@ -55,7 +57,9 @@
         detailInfo: {},
         paramInfo: {},
         commentInfo: {},
-        recommends: []
+        recommends: [],
+        themeTopsYs: [],
+        getThemeTopY: null
 
       }
     },
@@ -83,6 +87,19 @@
           // console.log(data.rate.list[0]);
           this.commentInfo = data.rate.list[0]
         }
+        //当页面完全渲染时，会调用$nextTick(),才能保证拿到的数据都有值
+        // this.$nextTick(() => {
+        //   //根据最新的数据，对应的dom已经被渲染出来了，但图片依然没有加载完(目前获取到的offsetTop不包含图片)
+        //
+        // })
+        /**
+         * 哪里才能正确的获取offsetTop
+         * 1.created肯定不行，压根不行获取元素
+         * 2.mounted也不行，数据还没有获取到
+         * 3.获取到数据用回调也不行，因为dom还没渲染完
+         * 4.this.$nextTick也不行，因为图片高度没有被计算
+         * 5.只有用了防抖函数在图片加载完成后，获取的高度才是正确
+         */
       })
 
       //3.请求推荐数据
@@ -90,6 +107,19 @@
         this.recommends = res.data.list
         // console.log(typeof res.data.list);
       })
+
+      //4.给getThemeTopY赋值(给this.themeTopsYs赋值操作进行防抖)
+      //防抖的目的提高性能，不到对一个操作过于频繁操作   可用于处理图片加载问题
+      this.getThemeTopY = debounce(() => {
+        this.themeTopsYs = []
+
+        this.themeTopsYs.push(0)
+        this.themeTopsYs.push(this.$refs.params.$el.offsetTop)
+        this.themeTopsYs.push(this.$refs.comment.$el.offsetTop)
+        this.themeTopsYs.push(this.$refs.recommend.$el.offsetTop)
+
+        console.log(this.themeTopsYs);
+      },100)
     },
     mounted() {
     },
@@ -100,6 +130,11 @@
     methods: {
       imageLoad() {
         this.refresh()
+        this.getThemeTopY()
+      },
+      titleClick(index) {
+        // console.log(index);
+        this.$refs.scroll.scrollTo(0, -this.themeTopsYs[index], 500)
       }
     }
   }
