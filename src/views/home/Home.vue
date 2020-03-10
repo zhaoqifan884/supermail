@@ -28,7 +28,7 @@
   import TabControl from "components/context/tabControl/TabControl";
   import GoodsList from "components/context/goods/GoodsList";
   import Scroll from "components/common/scroll/Scroll";
-  import BackTop from "components/context/backTop/BackTop";
+  // import BackTop from "components/context/backTop/BackTop";
 
   import HomeSwiper from "./childComps/HomeSwiper";
   import RecommendView from "./childComps/RecommendView";
@@ -39,7 +39,7 @@
     getHomeMultidata,
     getHomeGoods
   } from "network/home";
-  import {itemListenerMixin} from "common/mixin";
+  import {itemListenerMixin, backTopMixin} from "common/mixin";
 
   export default {
     name: "Home",
@@ -48,7 +48,7 @@
       TabControl,
       GoodsList,
       Scroll,
-      BackTop,
+      // BackTop,
 
       HomeSwiper,
       RecommendView,
@@ -56,7 +56,7 @@
       FeatureView
     },
     //混入
-    mixins: [itemListenerMixin],
+    mixins: [itemListenerMixin, backTopMixin],
     data() {
       return {
         banners: [],
@@ -68,7 +68,6 @@
         },
         //，默认展示pop
         currentType: 'pop',
-        isShowBackTop: false,
         tabOffsetTop: 0,
         isTabFixed: false,
         saveY: 0
@@ -190,14 +189,14 @@
           this.$refs.scroll.finishPullUp()
         })
       },
-      /**
+     /* /!**
        * 回到顶部
-       */
+       *!/
       backClick() {
         // console.log('回到顶部');
         //scrollTo(0,0) 返回（0,0）的位置 在500ms之内回到顶部
         this.$refs.scroll.scrollTo(0,0)
-      }
+      }*/
     }
 
   }
